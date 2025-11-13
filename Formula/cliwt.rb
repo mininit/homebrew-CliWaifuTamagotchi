@@ -1,15 +1,26 @@
-class Cliwaifutamagotchi < Formula
-  desc "CLI ASCII avatar for entertainment and motivational purposes"
+class Cliwt < Formula
+  desc "Cute terminal waifu tamagotchi for you"
   homepage "https://github.com/HenryLoM/CliWaifuTamagotchi"
   url "https://github.com/HenryLoM/CliWaifuTamagotchi/releases/download/v1.0.0/cliwt-v1.0.0.tar.gz"
-  sha256 "43da259b0fe512da194f3fc7882757e3780991eddf4529fcbed98b3b235a7a72"
+  sha256 "589175e2a46a00d85a4bf2811ae5aed54ad25e5241cd2c7e6a006eede48e8d5b"
   version "1.0.0"
 
   def install
-    # Install the binary
-    bin.install "cliwt"
+    # Install binary and rename it to avoid conflict with wrapper
+    bin.install "cliwt" => "cliwt.real"
 
-    # Install all folders and remaining files to prefix
-    prefix.install Dir["*"].select { |f| f != "cliwt" }
+    # Install asset directories
+    prefix.install "assets", "ascii-arts", "utils"
+
+    # Wrapper script to run binary from the prefix directory
+    (bin/"cliwt").write <<~EOS
+      #!/bin/bash
+      cd "#{prefix}" || exit 1
+      exec "#{bin}/cliwt.real" "$@"
+    EOS
+  end
+
+  test do
+    system "#{bin}/cliwt", "--help"
   end
 end
